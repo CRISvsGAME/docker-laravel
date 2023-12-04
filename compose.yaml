@@ -1,0 +1,101 @@
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: ./.docker/nginx.Dockerfile
+      args:
+        APP_SERVER_NAME: ${APP_SERVER_NAME}
+        PMA_SERVER_NAME: ${PMA_SERVER_NAME}
+    environment:
+      APP_SERVER_NAME: ${APP_SERVER_NAME}
+    ports:
+      - 80:80
+      - 443:443
+      - 5173:5173
+    volumes:
+      - ./app:/app
+      - ./.config/nginx/ssl:/etc/ssl/app-ssl
+    restart: always
+    depends_on:
+      - dev
+      - php
+      - phpmyadmin
+  php:
+    build:
+      context: .
+      dockerfile: ./.docker/php.Dockerfile
+      args:
+        APP_USER_NAME: ${APP_USER_NAME}
+        APP_USER_ID: ${APP_USER_ID}
+        APP_GROUP_NAME: ${APP_GROUP_NAME}
+        APP_GROUP_ID: ${APP_GROUP_ID}
+    volumes:
+      - ./app:/app
+    restart: always
+    depends_on:
+      - dev
+      - memcached
+  vite:
+    build:
+      context: .
+      dockerfile: ./.docker/vite.Dockerfile
+      args:
+        APP_USER_NAME: ${APP_USER_NAME}
+        APP_USER_ID: ${APP_USER_ID}
+        APP_GROUP_NAME: ${APP_GROUP_NAME}
+        APP_GROUP_ID: ${APP_GROUP_ID}
+    volumes:
+      - ./app:/app
+    restart: always
+    depends_on:
+      - dev
+  memcached:
+    image: memcached
+    restart: always
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASS}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASS}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - mysql:/var/lib/mysql
+    restart: always
+  phpmyadmin:
+    image: phpmyadmin
+    environment:
+      PMA_HOST: ${MYSQL_HOST}
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASS}
+    restart: always
+    depends_on:
+      - mysql
+  dev:
+    build:
+      context: .
+      dockerfile: ./.docker/dev.Dockerfile
+      args:
+        APP_USER_NAME: ${APP_USER_NAME}
+        APP_USER_ID: ${APP_USER_ID}
+        APP_GROUP_NAME: ${APP_GROUP_NAME}
+        APP_GROUP_ID: ${APP_GROUP_ID}
+    environment:
+      APP_URL: ${APP_SERVER_NAME}
+      DB_HOST: ${MYSQL_HOST}
+      DB_DATABASE: ${MYSQL_DATABASE}
+      DB_USERNAME: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASS}
+      CRT_C: ${CRT_C}
+      CRT_ST: ${CRT_ST}
+      CRT_L: ${CRT_L}
+      CRT_O: ${CRT_O}
+      CRT_OU: ${CRT_OU}
+      CRT_CN: ${CRT_CN}
+      CRT_EM: ${CRT_EM}
+    volumes:
+      - ./app:/app
+      - ./.config/nginx/ssl:/etc/ssl/app-ssl
+    restart: always
+volumes:
+  mysql:
