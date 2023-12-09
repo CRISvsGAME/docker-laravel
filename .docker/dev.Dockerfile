@@ -32,7 +32,9 @@ RUN addgroup -g ${APP_GROUP_ID} ${APP_GROUP_NAME} \
     nodejs \
     npm \
     openssl \
-    && ln -s /usr/bin/php82 /usr/bin/php \
+    && if [ ! -f /usr/bin/php ]; then \
+    ln -s /usr/bin/php82 /usr/bin/php; \
+    fi \
     && php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && php -r "if (hash_file('sha384', 'composer-setup.php') === \
     'e21205b207c3ff031906575712edab6f13eb0b361f2085f1f1237b7126d785e826a450292b6cfd1d64d92e6563bbde02') \
