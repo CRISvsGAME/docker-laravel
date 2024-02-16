@@ -1,0 +1,108 @@
+services:
+  nginx:
+    build:
+      args:
+        APP_SERVER_NAME: ${APP_SERVER_NAME}
+        PMA_SERVER_NAME: ${PMA_SERVER_NAME}
+      context: .
+      dockerfile: ./.docker/nginx.Dockerfile
+    depends_on:
+      - dev
+      - php
+      - phpmyadmin
+      - vite
+    environment:
+      APP_SERVER_NAME: ${APP_SERVER_NAME}
+    ports:
+      - ${HTTP_PORT}:80
+      - ${HTTPS_PORT}:443
+      - ${VITE_PORT}:5173
+    restart: always
+    volumes:
+      - ./app:/app
+      - ./.config/nginx/ssl:/etc/ssl/app-ssl
+  php:
+    build:
+      args:
+        APP_USER_NAME: ${APP_USER_NAME}
+        APP_USER_ID: ${APP_USER_ID}
+        APP_GROUP_NAME: ${APP_GROUP_NAME}
+        APP_GROUP_ID: ${APP_GROUP_ID}
+      context: .
+      dockerfile: ./.docker/php.Dockerfile
+    depends_on:
+      - dev
+      - redis
+    environment:
+      APP_USER_NAME: ${APP_USER_NAME}
+    restart: always
+    volumes:
+      - ./app:/app
+  vite:
+    build:
+      args:
+        APP_USER_NAME: ${APP_USER_NAME}
+        APP_USER_ID: ${APP_USER_ID}
+        APP_GROUP_NAME: ${APP_GROUP_NAME}
+        APP_GROUP_ID: ${APP_GROUP_ID}
+      context: .
+      dockerfile: ./.docker/vite.Dockerfile
+    depends_on:
+      - dev
+    restart: always
+    volumes:
+      - ./app:/app
+  redis:
+    image: redis
+    restart: always
+  mysql:
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASS}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASS}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    image: mysql
+    restart: always
+    volumes:
+      - mysql:/var/lib/mysql
+  phpmyadmin:
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: ${MYSQL_HOST}
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASS}
+    image: phpmyadmin
+    restart: always
+  dev:
+    build:
+      args:
+        APP_USER_NAME: ${APP_USER_NAME}
+        APP_USER_ID: ${APP_USER_ID}
+        APP_GROUP_NAME: ${APP_GROUP_NAME}
+        APP_GROUP_ID: ${APP_GROUP_ID}
+      context: .
+      dockerfile: ./.docker/dev.Dockerfile
+    environment:
+      APP_NAME: ${APP_NAME}
+      APP_URL: ${APP_SERVER_NAME}
+      VITE_PORT: ${VITE_PORT}
+      DB_HOST: ${MYSQL_HOST}
+      DB_DATABASE: ${MYSQL_DATABASE}
+      DB_USERNAME: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASS}
+      COMPOSER_PKG: ${COMPOSER_PKG}
+      NPM_PKG: ${NPM_PKG}
+      CRT_C: ${CRT_C}
+      CRT_ST: ${CRT_ST}
+      CRT_L: ${CRT_L}
+      CRT_O: ${CRT_O}
+      CRT_OU: ${CRT_OU}
+      CRT_CN: ${CRT_CN}
+      CRT_EM: ${CRT_EM}
+    restart: always
+    volumes:
+      - ./app:/app
+      - ./.config/nginx/ssl:/etc/ssl/app-ssl
+volumes:
+  mysql:
