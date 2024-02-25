@@ -52,8 +52,8 @@ fi
 messages "Certificate Ready"
 messages "Waiting for Project"
 if [ -d "$DIR" ]; then
-    if [ -f "$DIR/.gitignore" ]; then
-        rm -f "$DIR/.gitignore"
+    if [ -f "$DIR/.gitkeep" ]; then
+        rm -f "$DIR/.gitkeep"
     fi
     if [ "$(ls -A $DIR)" ]; then
         composer_service "Install"
