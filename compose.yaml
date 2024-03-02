@@ -84,13 +84,13 @@ services:
       context: .
       dockerfile: ./.docker/dev.Dockerfile
     environment:
-      APP_NAME: ${APP_NAME}
-      APP_URL: ${APP_SERVER_NAME}
-      VITE_PORT: ${VITE_PORT}
-      DB_HOST: ${MYSQL_HOST}
-      DB_DATABASE: ${MYSQL_DATABASE}
-      DB_USERNAME: ${MYSQL_USER}
-      DB_PASSWORD: ${MYSQL_PASS}
+      DEV_APP_NAME: ${APP_NAME}
+      DEV_APP_URL: ${APP_SERVER_NAME}
+      DEV_VITE_PORT: ${VITE_PORT}
+      DEV_DB_HOST: ${MYSQL_HOST}
+      DEV_DB_DATABASE: ${MYSQL_DATABASE}
+      DEV_DB_USERNAME: ${MYSQL_USER}
+      DEV_DB_PASSWORD: ${MYSQL_PASS}
       COMPOSER_PKG: ${COMPOSER_PKG}
       NPM_PKG: ${NPM_PKG}
       CRT_C: ${CRT_C}

@@ -1,7 +1,7 @@
 #!/bin/sh
 DIR="/app"
-KEY="/etc/ssl/app-ssl/$APP_URL/$APP_URL.key"
-CRT="/etc/ssl/app-ssl/$APP_URL/$APP_URL.crt"
+KEY="/etc/ssl/app-ssl/$DEV_APP_URL/$DEV_APP_URL.key"
+CRT="/etc/ssl/app-ssl/$DEV_APP_URL/$DEV_APP_URL.crt"
 errors() {
     messages "$1"
     if [ "$2" ]; then
@@ -39,15 +39,15 @@ npm_service() {
 messages "Waiting for Certificate"
 if [ ! -f "$KEY" ] && [ ! -f "$CRT" ]; then
     messages "Creating Certificate"
-    mkdir -p "/etc/ssl/app-ssl/$APP_URL"
+    mkdir -p "/etc/ssl/app-ssl/$DEV_APP_URL"
     openssl req -new -nodes -x509 -days 365 -newkey rsa:2048 \
         -addext "basicConstraints = critical, CA:FALSE" \
         -addext "extendedKeyUsage = serverAuth" \
         -addext "keyUsage = critical, digitalSignature, keyEncipherment" \
-        -addext "subjectAltName = DNS:$APP_URL, DNS:*.$APP_URL" \
+        -addext "subjectAltName = DNS:$DEV_APP_URL, DNS:*.$DEV_APP_URL" \
         -subj "/C=$CRT_C/ST=$CRT_ST/L=$CRT_L/O=$CRT_O/OU=$CRT_OU/CN=$CRT_CN/emailAddress=$CRT_EM" \
-        -keyout "/etc/ssl/app-ssl/$APP_URL/$APP_URL.key" \
-        -out "/etc/ssl/app-ssl/$APP_URL/$APP_URL.crt"
+        -keyout "/etc/ssl/app-ssl/$DEV_APP_URL/$DEV_APP_URL.key" \
+        -out "/etc/ssl/app-ssl/$DEV_APP_URL/$DEV_APP_URL.crt"
 fi
 messages "Certificate Ready"
 messages "Waiting for Project"
@@ -65,12 +65,12 @@ if [ -d "$DIR" ]; then
         cp "$DIR/.env.example" "$DIR/.env"
     fi
     if [ -f "$DIR/.env" ]; then
-        sed -i "/^APP_NAME/ s|=.*|=$APP_NAME|g" "$DIR/.env"
-        sed -i "/^APP_URL/ s|=.*|=https://$APP_URL|g" "$DIR/.env"
-        sed -i "/^DB_HOST/ s|=.*|=$DB_HOST|g" "$DIR/.env"
-        sed -i "/^DB_DATABASE/ s|=.*|=$DB_DATABASE|g" "$DIR/.env"
-        sed -i "/^DB_USERNAME/ s|=.*|=$DB_USERNAME|g" "$DIR/.env"
-        sed -i "/^DB_PASSWORD/ s|=.*|=$DB_PASSWORD|g" "$DIR/.env"
+        sed -i "/^APP_NAME/ s|=.*|=$DEV_APP_NAME|g" "$DIR/.env"
+        sed -i "/^APP_URL/ s|=.*|=https://$DEV_APP_URL|g" "$DIR/.env"
+        sed -i "/^DB_HOST/ s|=.*|=$DEV_DB_HOST|g" "$DIR/.env"
+        sed -i "/^DB_DATABASE/ s|=.*|=$DEV_DB_DATABASE|g" "$DIR/.env"
+        sed -i "/^DB_USERNAME/ s|=.*|=$DEV_DB_USERNAME|g" "$DIR/.env"
+        sed -i "/^DB_PASSWORD/ s|=.*|=$DEV_DB_PASSWORD|g" "$DIR/.env"
         sed -i "/^CACHE_DRIVER/ s|=.*|=redis|g" "$DIR/.env"
         sed -i "/^QUEUE_CONNECTION/ s|=.*|=redis|g" "$DIR/.env"
         sed -i "/^SESSION_DRIVER/ s|=.*|=redis|g" "$DIR/.env"
@@ -82,8 +82,8 @@ if [ -d "$DIR" ]; then
         host: 'vite',\n\
         hmr: {\n\
             protocol: 'wss',\n\
-            host: '$APP_URL',\n\
-            clientPort: '$VITE_PORT',\n\
+            host: '$DEV_APP_URL',\n\
+            clientPort: '$DEV_VITE_PORT',\n\
         },\n\
     },"
         if ! grep -qF "server: {" "$DIR/vite.config.js"; then
