@@ -84,13 +84,8 @@ services:
       context: .
       dockerfile: ./.docker/dev.Dockerfile
     environment:
-      DEV_APP_NAME: ${APP_NAME}
       DEV_APP_URL: ${APP_SERVER_NAME}
       DEV_VITE_PORT: ${VITE_PORT}
-      DEV_DB_HOST: ${MYSQL_HOST}
-      DEV_DB_DATABASE: ${MYSQL_DATABASE}
-      DEV_DB_USERNAME: ${MYSQL_USER}
-      DEV_DB_PASSWORD: ${MYSQL_PASS}
       COMPOSER_PKG: ${COMPOSER_PKG}
       NPM_PKG: ${NPM_PKG}
       CRT_C: ${CRT_C}
@@ -100,6 +95,8 @@ services:
       CRT_OU: ${CRT_OU}
       CRT_CN: ${CRT_CN}
       CRT_EM: ${CRT_EM}
+      LARAVEL_KEYS: ${LARAVEL_KEYS}
+      LARAVEL_VALS: ${LARAVEL_VALS}
     restart: always
     volumes:
       - ./app:/app

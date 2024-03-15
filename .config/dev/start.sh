@@ -65,17 +65,19 @@ if [ -d "$DIR" ]; then
         cp "$DIR/.env.example" "$DIR/.env"
     fi
     if [ -f "$DIR/.env" ]; then
-        sed -i "/^APP_NAME/ s|=.*|=$DEV_APP_NAME|g" "$DIR/.env"
-        sed -i "/^APP_URL/ s|=.*|=https://$DEV_APP_URL|g" "$DIR/.env"
-        sed -i "/^DB_HOST/ s|=.*|=$DEV_DB_HOST|g" "$DIR/.env"
-        sed -i "/^DB_DATABASE/ s|=.*|=$DEV_DB_DATABASE|g" "$DIR/.env"
-        sed -i "/^DB_USERNAME/ s|=.*|=$DEV_DB_USERNAME|g" "$DIR/.env"
-        sed -i "/^DB_PASSWORD/ s|=.*|=$DEV_DB_PASSWORD|g" "$DIR/.env"
-        sed -i "/^CACHE_DRIVER/ s|=.*|=redis|g" "$DIR/.env"
-        sed -i "/^QUEUE_CONNECTION/ s|=.*|=redis|g" "$DIR/.env"
-        sed -i "/^SESSION_DRIVER/ s|=.*|=redis|g" "$DIR/.env"
-        sed -i "/^REDIS_HOST/ s|=.*|=redis|g" "$DIR/.env"
-        sed -i "/^REDIS_HOST/ a REDIS_CLIENT=predis" "$DIR/.env"
+        length=$(echo "$LARAVEL_KEYS" | grep -c '[^[:space:]]')
+        i=1
+        while [ "$i" -le "$length" ]; do
+            key=$(echo "$LARAVEL_KEYS" | grep '[^[:space:]]' | sed -n "${i}p")
+            val=$(echo "$LARAVEL_VALS" | grep '[^[:space:]]' | sed -n "${i}p")
+            if grep -q "^$key=" "$DIR/.env"; then
+                sed -i "/^$key=/ s|=.*|=$val|" "$DIR/.env"
+            else
+                echo "$key=$val" >>"$DIR/.env"
+            fi
+            i=$((i + 1))
+        done
+        messages "Configuration Ready"
     fi
     if [ -f "$DIR/vite.config.js" ]; then
         VITE="\    server: {\n\
